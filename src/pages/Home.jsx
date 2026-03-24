@@ -1,13 +1,13 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { currentUser, weeklyActivity } from '../data/mockData'
+import { weeklyActivity } from '../data/mockData'
 import { useApp } from '../context/AppContext'
 import { StatPill, MiniChart, ActivityIcon, IconBtn } from '../components/UI'
 import BottomNav from '../components/BottomNav'
 
 export default function Home() {
   const navigate = useNavigate()
-  const { activities, groups, unreadCount } = useApp()
+  const { activities, groups, unreadCount, currentUser } = useApp()
   const myActivities = activities.filter(a => a.userId === 'u1').slice(0, 2)
 
   const pct = Math.round((currentUser.weeklyDone / currentUser.weeklyGoal) * 100)

@@ -25,7 +25,7 @@ export default function Onboarding() {
 
   function next() {
     if (slide < slides.length - 1) setSlide(s => s + 1)
-    else navigate('/login')
+    else navigate('/register')
   }
 
   const s = slides[slide]
@@ -71,7 +71,7 @@ export default function Onboarding() {
         <button onClick={next} className="btn-primary" style={{ background: '#fff', color: 'var(--blue)', marginBottom: 12 }}>
           {slide < slides.length - 1 ? 'Suivant' : 'Commencer'}
         </button>
-        <button onClick={() => navigate('/login')} className="btn-outline" style={{ borderColor: 'rgba(255,255,255,0.5)', color: '#fff' }}>
+        <button onClick={() => navigate('/register')} className="btn-outline" style={{ borderColor: 'rgba(255,255,255,0.5)', color: '#fff' }}>
           J'ai déjà un compte
         </button>
       </div>

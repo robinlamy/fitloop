@@ -4,6 +4,7 @@ import { AppProvider } from './context/AppContext'
 
 import Onboarding from './pages/Onboarding'
 import Login from './pages/Login'
+import Register from './pages/Register'
 import Home from './pages/Home'
 import Feed from './pages/Feed'
 import LogActivity from './pages/LogActivity'
@@ -21,6 +22,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Onboarding />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/home" element={<Home />} />
             <Route path="/feed" element={<Feed />} />
             <Route path="/log" element={<LogActivity />} />

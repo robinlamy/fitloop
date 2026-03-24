@@ -1,26 +1,35 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { currentUser, badges } from '../data/mockData'
+import { badges } from '../data/mockData'
 import { useApp } from '../context/AppContext'
 import { ActivityIcon } from '../components/UI'
 import BottomNav from '../components/BottomNav'
 
 export default function Profile() {
   const navigate = useNavigate()
-  const { activities } = useApp()
+  const { currentUser, logout, activities } = useApp()
   const myActivities = activities.filter(a => a.userId === 'u1').slice(0, 3)
+
+  function handleLogout() {
+    logout()
+    navigate('/')
+  }
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg)' }}>
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 'calc(var(--nav-h) + 12px)' }}>
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 'calc(var(--nav-h) + 16px)' }}>
         {/* Header */}
         <div style={{ background: 'var(--card)', padding: '16px 20px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
             <div style={{ position: 'relative' }}>
-              <div className="avatar" style={{ width: 72, height: 72, background: currentUser.avatarColor, color: currentUser.avatarTextColor, fontSize: 26, fontWeight: 800 }}>
-                {currentUser.initials}
-              </div>
-              <div style={{ position: 'absolute', bottom: 0, right: 0, width: 22, height: 22, background: 'var(--blue)', borderRadius: '50%', border: '2px solid var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: '#fff' }}>✎</div>
+              {currentUser.photo ? (
+                <img src={currentUser.photo} style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--blue-light)' }} />
+              ) : (
+                <div className="avatar" style={{ width: 72, height: 72, background: currentUser.avatarColor || '#dbeafe', color: currentUser.avatarTextColor || '#1d4ed8', fontSize: 26, fontWeight: 800 }}>
+                  {currentUser.initials}
+                </div>
+              )}
+              <div style={{ position: 'absolute', bottom: 0, right: 0, width: 22, height: 22, background: 'var(--blue)', borderRadius: '50%', border: '2px solid var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: '#fff', cursor: 'pointer' }}>✎</div>
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)' }}>{currentUser.name}</div>
@@ -29,12 +38,12 @@ export default function Profile() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 0, borderTop: '0.5px solid var(--border)', paddingTop: 14 }}>
+          <div style={{ display: 'flex', borderTop: '0.5px solid var(--border)', paddingTop: 14 }}>
             {[
-              { val: currentUser.totalActivities, label: 'Activités' },
-              { val: currentUser.followers, label: 'Abonnés' },
-              { val: currentUser.following, label: 'Abonnements' },
-              { val: currentUser.groups, label: 'Groupes' },
+              { val: currentUser.totalActivities || 0, label: 'Activités' },
+              { val: currentUser.followers || 0, label: 'Abonnés' },
+              { val: currentUser.following || 0, label: 'Abonnements' },
+              { val: currentUser.groups || 0, label: 'Groupes' },
             ].map((s, i) => (
               <div key={i} style={{ flex: 1, textAlign: 'center' }}>
                 <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)' }}>{s.val}</div>
@@ -47,10 +56,10 @@ export default function Profile() {
         {/* Stats grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, margin: '14px 16px 0' }}>
           {[
-            { val: `${currentUser.totalKm} km`, label: 'Ce mois', color: 'var(--blue)' },
-            { val: currentUser.totalCalories.toLocaleString('fr'), label: 'Calories totales', color: 'var(--orange)' },
-            { val: currentUser.bestPace, label: 'Meilleure allure', color: 'var(--green)' },
-            { val: currentUser.totalPoints.toLocaleString('fr'), label: 'Points totaux', color: 'var(--gold)' },
+            { val: `${currentUser.totalKm || 0} km`, label: 'Distance totale', color: 'var(--blue)' },
+            { val: (currentUser.totalCalories || 0).toLocaleString('fr'), label: 'Calories totales', color: 'var(--orange)' },
+            { val: currentUser.bestPace || '-', label: 'Meilleure allure', color: 'var(--green)' },
+            { val: (currentUser.totalPoints || 0).toLocaleString('fr'), label: 'Points totaux', color: 'var(--gold)' },
           ].map((s, i) => (
             <div key={i} className="card-sm" style={{ textAlign: 'center', padding: 14 }}>
               <div style={{ fontSize: 24, fontWeight: 800, color: s.color }}>{s.val}</div>
@@ -81,7 +90,7 @@ export default function Profile() {
 
         {/* Recent activities */}
         <div style={{ padding: '16px 20px 8px', fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>Activités récentes</div>
-        {myActivities.map(a => (
+        {myActivities.length > 0 ? myActivities.map(a => (
           <div key={a.id} className="card" style={{ padding: '12px 14px', margin: '0 16px 10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <ActivityIcon type={a.type} size={36} />
@@ -93,22 +102,26 @@ export default function Profile() {
               {!a.isRecord && <span className="badge badge-blue">+{a.points} pts</span>}
             </div>
           </div>
-        ))}
+        )) : (
+          <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--muted)', fontSize: 14 }}>
+            Aucune activité pour l'instant — ajoutes-en une ! 💪
+          </div>
+        )}
 
         {/* Settings */}
         <div style={{ margin: '8px 16px 0' }}>
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
             {[
-              { icon: '⚙️', label: 'Paramètres' },
+              { icon: '⚙️', label: 'Paramètres', action: null },
               { icon: '🔔', label: 'Notifications', action: () => navigate('/notifications') },
-              { icon: '🔒', label: 'Confidentialité' },
-              { icon: '❓', label: 'Aide' },
-              { icon: '🚪', label: 'Se déconnecter', color: 'var(--red)', action: () => navigate('/') },
+              { icon: '🏆', label: 'Challenges', action: () => navigate('/challenges') },
+              { icon: '🔒', label: 'Confidentialité', action: null },
+              { icon: '🚪', label: 'Se déconnecter', color: 'var(--red)', action: handleLogout },
             ].map((item, i) => (
-              <div key={i} onClick={item.action} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: i < 4 ? '0.5px solid var(--border)' : 'none', cursor: 'pointer' }}>
+              <div key={i} onClick={item.action} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderBottom: i < 4 ? '0.5px solid var(--border)' : 'none', cursor: item.action ? 'pointer' : 'default' }}>
                 <span style={{ fontSize: 18 }}>{item.icon}</span>
                 <span style={{ fontSize: 15, fontWeight: 500, color: item.color || 'var(--text)' }}>{item.label}</span>
-                <span style={{ marginLeft: 'auto', color: 'var(--muted)', fontSize: 14 }}>›</span>
+                {item.action && <span style={{ marginLeft: 'auto', color: 'var(--muted)', fontSize: 14 }}>›</span>}
               </div>
             ))}
           </div>
